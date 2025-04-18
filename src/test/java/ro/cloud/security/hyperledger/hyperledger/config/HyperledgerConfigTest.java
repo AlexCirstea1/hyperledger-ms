@@ -1,93 +1,143 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
-import org.hyperledger.fabric.gateway.Contract;
-import org.hyperledger.fabric.gateway.Gateway;
-import org.hyperledger.fabric.gateway.Network;
-import org.hyperledger.fabric.gateway.Wallet;
-import org.hyperledger.fabric.gateway.Wallets;
+import org.hyperledger.fabric.gateway.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class HyperledgerConfigTest {
-
-    @Mock
-    private Gateway gateway;
-
-    @Mock
-    private Network network;
-
-    @Mock
-    private Contract contract;
-
-    @Mock
-    private Wallet wallet;
-
-    @Mock
-    private Gateway.Builder gatewayBuilder;
+@SpringBootTest
+class HyperledgerConfigTest {
 
     private HyperledgerConfig config;
+
+    @Value("${fabric.wallet.path}")
+    private String walletPath;
+
+    @Value("${fabric.user-name}")
+    private String userName;
+
+    @Value("${fabric.network.config}")
+    private String networkConfigPath;
+
+    @Value("${fabric.channel-name}")
+    private String channelName;
+
+    @Value("${fabric.contract-name}")
+    private String contractName;
 
     @BeforeEach
     void setUp() {
         config = new HyperledgerConfig();
-        config.setWalletPath("blockchain/fabric/vaultx-network/organizations/wallet/wallet");
-        config.setConnectionProfilePath("blockchain/fabric/vaultx-network/organizations/peerOrganizations/org1.example.com/connection-org1.yaml");
-        config.setChannelName("mychannel");
-        config.setContractName("vaultx-event");
-        config.setUserName("appUser");
+        config.setWalletPath(walletPath);
+        config.setUserName(userName);
+        config.setNetworkConfigPath(networkConfigPath);
+        config.setChannelName(channelName);
+        config.setContractName(contractName);
     }
 
     @Test
-    void gatewaySetup_shouldCreateGatewayWithCorrectConfig() throws IOException {
-        try (MockedStatic<Wallets> walletsMock = mockStatic(Wallets.class);
-             MockedStatic<Paths> pathsMock = mockStatic(Paths.class);
-             MockedStatic<Gateway> gatewayMock = mockStatic(Gateway.class)) {
+    void gatewayBean_shouldLoadIdentity_and_buildGateway() throws Exception {
+        // mocks for all the static calls inside gateway()
+        try (MockedStatic<Wallets>      walletsMock   = mockStatic(Wallets.class);
+             MockedStatic<Paths>        pathsMock     = mockStatic(Paths.class);
+             MockedStatic<Files>        filesMock     = mockStatic(Files.class);
+             MockedStatic<Identities>   idsMock       = mockStatic(Identities.class);
+             MockedStatic<Gateway>      gatewayStatic = mockStatic(Gateway.class)) {
 
-            // Arrange
-            Path walletPath = mock(Path.class);
-            Path connectionPath = mock(Path.class);
+            // Mock Paths.get(walletPath, "msp") directly
+            Path mspDir = mock(Path.class);
+            pathsMock.when(() -> Paths.get(walletPath, "msp")).thenReturn(mspDir);
 
-            walletsMock.when(() -> Wallets.newFileSystemWallet(any(Path.class))).thenReturn(wallet);
-            pathsMock.when(() -> Paths.get(config.getWalletPath())).thenReturn(walletPath);
-            pathsMock.when(() -> Paths.get(config.getConnectionProfilePath())).thenReturn(connectionPath);
+            // 2) read cert
+            Path signcerts = mock(Path.class);
+            when(mspDir.resolve("signcerts")).thenReturn(signcerts);
+            Path certPem    = mock(Path.class);
+            when(signcerts.resolve("cert.pem")).thenReturn(certPem);
+            BufferedReader certReader = mock(BufferedReader.class);
+            filesMock.when(() -> Files.newBufferedReader(certPem)).thenReturn(certReader);
+            X509Certificate cert = mock(X509Certificate.class);
+            idsMock.when(() -> Identities.readX509Certificate(certReader)).thenReturn(cert);
 
-            gatewayMock.when(Gateway::createBuilder).thenReturn(gatewayBuilder);
-            when(gatewayBuilder.identity(wallet, config.getUserName())).thenReturn(gatewayBuilder);
-            when(gatewayBuilder.networkConfig(connectionPath)).thenReturn(gatewayBuilder);
-            when(gatewayBuilder.discovery(true)).thenReturn(gatewayBuilder);
-            when(gatewayBuilder.connect()).thenReturn(gateway);
+            // 3) read private key
+            Path keystore   = mock(Path.class);
+            when(mspDir.resolve("keystore")).thenReturn(keystore);
+            Path keyFile    = mock(Path.class);
+            filesMock.when(() -> Files.list(keystore)).thenReturn(Stream.of(keyFile));
+            BufferedReader keyReader = mock(BufferedReader.class);
+            filesMock.when(() -> Files.newBufferedReader(keyFile)).thenReturn(keyReader);
+            PrivateKey pkey = mock(PrivateKey.class);
+            idsMock.when(() -> Identities.readPrivateKey(keyReader)).thenReturn(pkey);
 
-            when(gateway.getNetwork(config.getChannelName())).thenReturn(network);
-            when(network.getContract(config.getContractName())).thenReturn(contract);
+            // 4) new in‑memory wallet + import identity
+            Wallet wallet    = mock(Wallet.class);
+            walletsMock.when(Wallets::newInMemoryWallet).thenReturn(wallet);
+            X509Identity id      = mock(X509Identity.class);
+            idsMock.when(() -> Identities.newX509Identity("Org1MSP", cert, pkey)).thenReturn(id);
 
-            // Act
+            // 5) stub Gateway builder
+            Path networkCfg = mock(Path.class);
+            pathsMock.when(() -> Paths.get(networkConfigPath)).thenReturn(networkCfg);
+
+            Gateway.Builder builder = mock(Gateway.Builder.class);
+            Gateway          gw      = mock(Gateway.class);
+
+            gatewayStatic.when(Gateway::createBuilder).thenReturn(builder);
+            when(builder.identity(wallet, userName)).thenReturn(builder);
+            when(builder.networkConfig(networkCfg)).thenReturn(builder);
+            when(builder.discovery(true)).thenReturn(builder);
+            when(builder.connect()).thenReturn(gw);
+
+            // ——— ACT ———
             Gateway result = config.gateway();
-            Network networkResult = config.network(result);
-            Contract contractResult = config.eventContract(networkResult);
 
-            // Assert
+            // ——— VERIFY ———
             assertNotNull(result);
-            assertNotNull(networkResult);
-            assertNotNull(contractResult);
-
-            // Verify
-            verify(gatewayBuilder).identity(wallet, "appUser");
-            verify(gatewayBuilder).networkConfig(connectionPath);
-            verify(gateway).getNetwork("mychannel");
-            verify(network).getContract("vaultx-event");
+            // wallet creation + import
+            walletsMock.verify(Wallets::newInMemoryWallet);
+            verify(wallet).put(userName, id);
+            // gateway builder chain
+            gatewayStatic.verify(Gateway::createBuilder);
+            verify(builder).identity(wallet, userName);
+            verify(builder).networkConfig(networkCfg);
+            verify(builder).discovery(true);
+            verify(builder).connect();
         }
+    }
+
+    @Test
+    void networkBean_shouldReturnNetwork() {
+        Gateway gw = mock(Gateway.class);
+        Network net = mock(Network.class);
+        when(gw.getNetwork(channelName)).thenReturn(net);
+
+        Network result = config.network(gw);
+
+        assertNotNull(result);
+        verify(gw).getNetwork(channelName);
+    }
+
+    @Test
+    void eventContractBean_shouldReturnContract() {
+        Network net = mock(Network.class);
+        Contract cc = mock(Contract.class);
+        when(net.getContract(contractName)).thenReturn(cc);
+
+        Contract result = config.eventContract(net);
+
+        assertNotNull(result);
+        verify(net).getContract(contractName);
     }
 }

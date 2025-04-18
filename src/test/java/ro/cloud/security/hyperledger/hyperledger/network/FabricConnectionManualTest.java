@@ -1,4 +1,4 @@
-package ro.cloud.security.hyperledger.hyperledger;
+package ro.cloud.security.hyperledger.hyperledger.network;
 
 import org.hyperledger.fabric.gateway.Contract;
 import org.junit.jupiter.api.Tag;
@@ -6,9 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ro.cloud.security.hyperledger.hyperledger.model.DIDEvent;
+import ro.cloud.security.hyperledger.hyperledger.model.EventHistory;
 import ro.cloud.security.hyperledger.hyperledger.model.EventType;
 import ro.cloud.security.hyperledger.hyperledger.service.EventChainCodeService;
 
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -37,5 +39,32 @@ public class FabricConnectionManualTest {
 
         // Success if no exception is thrown
         System.out.println("Successfully submitted transaction: " + event.getEventId());
+    }
+
+    @Test
+    void testQueryEvents() {
+        // First create an event
+        DIDEvent event = new DIDEvent();
+        UUID userId = UUID.randomUUID();
+        event.setEventId(UUID.randomUUID());
+        event.setUserId(userId);
+        event.setEventType(EventType.USER_REGISTERED);
+        event.setPayload("{\"test\":\"query\"}");
+        event.setKafkaOffset(1000L);
+
+        // Save the event
+        eventChainCodeService.saveEvent(event);
+
+        // Query the event by ID
+        DIDEvent retrievedEvent = eventChainCodeService.getEvent(event.getEventId());
+        System.out.println("Retrieved event: " + retrievedEvent);
+
+        // Query events by user ID
+        List<DIDEvent> userEvents = eventChainCodeService.getEventsByUser(userId);
+        System.out.println("Found " + userEvents.size() + " events for user");
+
+        // Query event history
+        List<EventHistory> history = eventChainCodeService.getEventHistory(event.getEventId());
+        System.out.println("Event history entries: " + history.size());
     }
 }

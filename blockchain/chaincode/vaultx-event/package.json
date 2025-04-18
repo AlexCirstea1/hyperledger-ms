@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "echo 'Add eslint if you wish'",
     "test": "echo 'Add mocha/ava tests if you wish'",
-    "package": "npm pack"
+    "package": "npm pack",
+    "start": "fabric-chaincode-node start"
   },
   "dependencies": {
     "fabric-contract-api": "^2.5.0",
