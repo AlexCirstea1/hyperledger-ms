@@ -1,0 +1,16 @@
+{
+  "name": "vaultx-event",
+  "version": "1.0.0",
+  "description": "VaultX Event chaincode (Fabric Contract API, JS)",
+  "engines": { "node": ">=14" },
+  "main": "index.js",
+  "scripts": {
+    "lint": "echo 'Add eslint if you wish'",
+    "test": "echo 'Add mocha/ava tests if you wish'",
+    "package": "npm pack"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.0",
+    "fabric-shim": "^2.5.0"
+  }
+}
