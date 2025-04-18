@@ -1,22 +1,19 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import lombok.Data;
 import org.hyperledger.fabric.gateway.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.concurrent.TimeoutException;
-
 @Configuration
 @ConfigurationProperties(prefix = "fabric")
 @Data
 public class HyperledgerConfig {
+
     private String walletPath;
-    private String networkName;
     private String channelName;
     private String contractName;
     private String userName;
@@ -24,16 +21,12 @@ public class HyperledgerConfig {
 
     @Bean
     public Gateway gateway() throws IOException {
-        Path walletDirectory = Paths.get(walletPath);
-        Wallet wallet = Wallets.newFileSystemWallet(walletDirectory);
-
-        Path connectionProfile = Paths.get(connectionProfilePath);
-        Gateway.Builder builder = Gateway.createBuilder()
+        Wallet wallet = Wallets.newFileSystemWallet(Paths.get(walletPath));
+        return Gateway.createBuilder()
                 .identity(wallet, userName)
-                .networkConfig(connectionProfile)
-                .discovery(true);
-
-        return builder.connect();
+                .networkConfig(Paths.get(connectionProfilePath))
+                .discovery(true)
+                .connect();
     }
 
     @Bean

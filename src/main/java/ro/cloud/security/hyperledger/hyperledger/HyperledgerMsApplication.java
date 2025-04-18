@@ -9,5 +9,4 @@ public class HyperledgerMsApplication {
     public static void main(String[] args) {
         SpringApplication.run(HyperledgerMsApplication.class, args);
     }
-
 }

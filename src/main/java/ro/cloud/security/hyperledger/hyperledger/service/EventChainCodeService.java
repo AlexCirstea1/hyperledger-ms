@@ -1,53 +1,42 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.springframework.stereotype.Service;
+import ro.cloud.security.hyperledger.hyperledger.model.DIDEvent;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class EventChainCodeService {
+
     private final Contract eventContract;
 
-    public byte[] createEvent(String eventId, String userId, String type, String payloadHash, int kafkaOffset) {
-        try {
-            byte[] result = eventContract.submitTransaction("createEvent", eventId, userId, type, payloadHash,
-                    String.valueOf(kafkaOffset));
-            log.info("Event created: {}", eventId);
-            return result;
-        } catch (Exception e) {
-            log.error("Failed to create event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create event", e);
-        }
-    }
+    /**
+     * Persist a DID‑event on the ledger.
+     */
+    public void saveEvent(DIDEvent ev) {
 
-    public byte[] queryEvent(String eventId) {
-        try {
-            return eventContract.evaluateTransaction("queryEvent", eventId);
-        } catch (ContractException e) {
-            log.error("Failed to query event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to query event", e);
+        if (ev.getEventId() == null) {
+            ev.setEventId(UUID.randomUUID());
         }
-    }
-
-    public byte[] queryEventsByUser(String userId) {
-        try {
-            return eventContract.evaluateTransaction("queryEventsByUser", userId);
-        } catch (ContractException e) {
-            log.error("Failed to query events by user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to query events by user", e);
+        if (ev.getPayloadHash() == null) {
+            ev.setPayloadHash(DigestUtils.sha256Hex(ev.getPayload()));
         }
-    }
 
-    public byte[] getHistory(String eventId) {
         try {
-            return eventContract.evaluateTransaction("getHistory", eventId);
-        } catch (ContractException e) {
-            log.error("Failed to get event history: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get event history", e);
+            eventContract.submitTransaction(
+                    "createEvent",
+                    ev.getEventId().toString(),
+                    ev.getUserId().toString(),
+                    ev.getEventType().name(),
+                    ev.getPayloadHash(),
+                    String.valueOf(ev.getKafkaOffset()));
+        } catch (ContractException | TimeoutException | InterruptedException e) {
+            throw new IllegalStateException("Failed to write event to Fabric", e);
         }
     }
 }

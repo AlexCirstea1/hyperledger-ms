@@ -13,8 +13,7 @@ public class DIDEventRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("direct:processDocumentMetadata")
-                .process(DIDEventProcessor);
-//                .to("log:received-message");
+        from("direct:processDocumentMetadata").process(DIDEventProcessor);
+        //                .to("log:received-message");
     }
 }

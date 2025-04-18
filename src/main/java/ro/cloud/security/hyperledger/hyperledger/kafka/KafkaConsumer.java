@@ -19,27 +19,37 @@ public class KafkaConsumer {
 
     private final ProducerTemplate producerTemplate;
 
-    @KafkaListener(topics = {BLOCKCHAIN_TOPIC}, groupId = "hyperledger-ms")
+    @KafkaListener(
+            topics = {BLOCKCHAIN_TOPIC},
+            groupId = "hyperledger-ms")
     public void consumeBlockchainEvents(String message) {
         processMessage(message, "blockchain");
     }
 
-    @KafkaListener(topics = {USER_REGISTRATION_TOPIC}, groupId = "hyperledger-ms")
+    @KafkaListener(
+            topics = {USER_REGISTRATION_TOPIC},
+            groupId = "hyperledger-ms")
     public void consumeUserRegistrationEvents(String message) {
         processMessage(message, "userRegistration");
     }
 
-    @KafkaListener(topics = {USER_KEY_ROTATION_TOPIC}, groupId = "hyperledger-ms")
+    @KafkaListener(
+            topics = {USER_KEY_ROTATION_TOPIC},
+            groupId = "hyperledger-ms")
     public void consumeKeyRotationEvents(String message) {
         processMessage(message, "keyRotation");
     }
 
-    @KafkaListener(topics = {USER_ROLE_TOPIC}, groupId = "hyperledger-ms")
+    @KafkaListener(
+            topics = {USER_ROLE_TOPIC},
+            groupId = "hyperledger-ms")
     public void consumeUserRoleEvents(String message) {
         processMessage(message, "userRole");
     }
 
-    @KafkaListener(topics = {CHAT_TOPIC}, groupId = "hyperledger-ms")
+    @KafkaListener(
+            topics = {CHAT_TOPIC},
+            groupId = "hyperledger-ms")
     public void consumeChatEvents(String message) {
         processMessage(message, "chat");
     }

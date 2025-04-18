@@ -15,7 +15,8 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Hyperledger Microservice API")
                         .version("1.0")
-                        .description("Spring Boot application for managing user events on Hyperledger Fabric blockchain")
+                        .description(
+                                "Spring Boot application for managing user events on Hyperledger Fabric blockchain")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")));
     }
 }

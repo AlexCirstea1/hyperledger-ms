@@ -27,6 +27,7 @@
         <protobuf.version>4.28.3</protobuf.version>
         <bouncycastle.version>1.79</bouncycastle.version>
         <springdoc.version>2.5.0</springdoc.version>
+        <spotless.version>2.43.0</spotless.version>
     </properties>
 
     <dependencyManagement>
@@ -97,6 +98,11 @@
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.16.0</version>
+        </dependency>
 
         <!-- Security -->
         <dependency>
@@ -150,6 +156,16 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat/>
+                    </java>
                 </configuration>
             </plugin>
         </plugins>
