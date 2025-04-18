@@ -1,12 +1,13 @@
 package ro.cloud.security.hyperledger.hyperledger.model;
 
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EventHistory {
     private String txId;
-    private Instant timestamp;
+    private String timestamp;
     private boolean isDelete;
-    private String value;  // This will contain the JSON representation of the event
+    private String value;
 }

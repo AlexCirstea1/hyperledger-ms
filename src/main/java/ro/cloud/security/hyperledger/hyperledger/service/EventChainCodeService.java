@@ -1,6 +1,7 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
@@ -82,10 +84,40 @@ public class EventChainCodeService {
     public List<EventHistory> getEventHistory(UUID eventId) {
         try {
             byte[] result = eventContract.evaluateTransaction("queryHistory", eventId.toString());
-            return objectMapper.readValue(new String(result, StandardCharsets.UTF_8),
-                    new TypeReference<List<EventHistory>>() {});
-        } catch (ContractException | JsonProcessingException e) {
+            // Use a custom deserializer or manual conversion
+            return convertToEventHistory(result);
+        } catch (ContractException e) {
             throw new IllegalStateException("Failed to query event history from Fabric", e);
+        }
+    }
+
+    private List<EventHistory> convertToEventHistory(byte[] json) {
+        try {
+            // Create a list to hold our converted history items
+            List<EventHistory> historyList = new ArrayList<>();
+
+            // Parse JSON as generic structure first
+            JsonNode rootArray = objectMapper.readTree(json);
+
+            // Convert each entry
+            for (JsonNode node : rootArray) {
+                EventHistory item = new EventHistory();
+                item.setTxId(node.path("txId").asText());
+                item.setDelete(node.path("isDelete").asBoolean());
+                item.setValue(node.path("value").asText());
+
+                // Handle timestamp specially
+                if (node.has("timestamp")) {
+                    // Just store as string representation for now
+                    item.setTimestamp(node.path("timestamp").toString());
+                }
+
+                historyList.add(item);
+            }
+
+            return historyList;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to deserialize event history", e);
         }
     }
 

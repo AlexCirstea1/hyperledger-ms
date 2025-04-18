@@ -7,7 +7,6 @@ class VaultxEventContract extends Contract {
 
     /** createEvent(txID, userId, type, payloadHash, kafkaOffset) */
     async createEvent(ctx, eventId, userId, type, payloadHash, kafkaOffset) {
-
         // Check if the event already exists
         const exists = await ctx.stub.getState(eventId);
         if (exists && exists.length > 0) {
@@ -16,7 +15,6 @@ class VaultxEventContract extends Contract {
 
         // Use the deterministic transaction timestamp provided by Fabric
         const txTimestampProto = ctx.stub.getTxTimestamp();
-        // Convert protobuf timestamp to JavaScript date
         const seconds = txTimestampProto.seconds.low !== undefined ? txTimestampProto.seconds.low : txTimestampProto.seconds;
         const nanos = txTimestampProto.nanos;
         const eventTimestamp = new Date(seconds * 1000 + nanos / 1000000).toISOString();
@@ -50,11 +48,14 @@ class VaultxEventContract extends Contract {
         const iterator = await ctx.stub.getQueryResult(
             JSON.stringify({ selector: { docType: 'vaultxEvent', userId } })
         );
-
         const results = [];
-        for await (const res of iterator) {
-            results.push(JSON.parse(res.value.toString()));
+        let result = await iterator.next();
+        while (!result.done) {
+            const record = result.value;
+            results.push(JSON.parse(record.value.toString('utf8')));
+            result = await iterator.next();
         }
+        await iterator.close();
         return results;
     }
 
@@ -62,14 +63,18 @@ class VaultxEventContract extends Contract {
     async queryHistory(ctx, eventId) {
         const iterator = await ctx.stub.getHistoryForKey(eventId);
         const history = [];
-        for await (const res of iterator) {
+        let result = await iterator.next();
+        while (!result.done) {
+            const record = result.value;
             history.push({
-                txId: res.txId,
-                timestamp: res.timestamp,
-                isDelete: res.isDelete,
-                value: res.value.toString('utf8')
+                txId: record.txId,
+                timestamp: record.timestamp,
+                isDelete: record.isDelete,
+                value: record.value.toString('utf8')
             });
+            result = await iterator.next();
         }
+        await iterator.close();
         return history;
     }
 }
