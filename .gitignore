@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/blockchain/fabric/vaultx-network/organizations/wallet/node_modules/

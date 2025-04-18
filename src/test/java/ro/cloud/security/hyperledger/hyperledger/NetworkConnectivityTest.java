@@ -1,0 +1,41 @@
+package ro.cloud.security.hyperledger.hyperledger;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+
+import java.net.InetAddress;
+import java.net.Socket;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Tag("manual")
+public class NetworkConnectivityTest {
+
+    @Test
+    void testPeerHostResolution() throws Exception {
+        // Test if hosts can be resolved
+        assertTrue(InetAddress.getByName("peer0.org1.example.com").isReachable(1000),
+                "peer0.org1.example.com is not reachable");
+
+        assertTrue(InetAddress.getByName("peer0.org2.example.com").isReachable(1000),
+                "peer0.org2.example.com is not reachable");
+    }
+
+    @Test
+    void testPeerPortConnectivity() {
+        // Test if ports are open
+        assertTrue(isPortOpen("peer0.org1.example.com", 7051),
+                "Cannot connect to peer0.org1.example.com:7051");
+
+        assertTrue(isPortOpen("peer0.org2.example.com", 9051),
+                "Cannot connect to peer0.org2.example.com:9051");
+    }
+
+    private boolean isPortOpen(String host, int port) {
+        try (Socket socket = new Socket(host, port)) {
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
