@@ -1,5 +1,13 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.UUID;
 import org.hyperledger.fabric.gateway.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,15 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ro.cloud.security.hyperledger.hyperledger.model.DIDEvent;
 import ro.cloud.security.hyperledger.hyperledger.model.EventHistory;
 import ro.cloud.security.hyperledger.hyperledger.model.EventType;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EventChainCodeServiceTest {
@@ -52,14 +51,14 @@ public class EventChainCodeServiceTest {
         service.saveEvent(event);
 
         // Assert
-        verify(eventContract).submitTransaction(
-                "createEvent",
-                eventId.toString(),
-                userId.toString(),
-                "USER_REGISTERED",
-                event.getPayloadHash(),
-                "123"
-        );
+        verify(eventContract)
+                .submitTransaction(
+                        "createEvent",
+                        eventId.toString(),
+                        userId.toString(),
+                        "USER_REGISTERED",
+                        event.getPayloadHash(),
+                        "123");
     }
 
     @Test
@@ -71,7 +70,9 @@ public class EventChainCodeServiceTest {
         event.setEventType(EventType.USER_REGISTERED);
         event.setPayload("test-payload");
 
-        doThrow(new RuntimeException("Network error")).when(eventContract).submitTransaction(any(), any(), any(), any(), any(), any());
+        doThrow(new RuntimeException("Network error"))
+                .when(eventContract)
+                .submitTransaction(any(), any(), any(), any(), any(), any());
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> service.saveEvent(event));

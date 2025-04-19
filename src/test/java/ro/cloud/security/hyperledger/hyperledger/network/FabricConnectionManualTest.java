@@ -1,5 +1,7 @@
 package ro.cloud.security.hyperledger.hyperledger.network;
 
+import java.util.List;
+import java.util.UUID;
 import org.hyperledger.fabric.gateway.Contract;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -10,11 +12,8 @@ import ro.cloud.security.hyperledger.hyperledger.model.EventHistory;
 import ro.cloud.security.hyperledger.hyperledger.model.EventType;
 import ro.cloud.security.hyperledger.hyperledger.service.EventChainCodeService;
 
-import java.util.List;
-import java.util.UUID;
-
 @SpringBootTest
-@Tag("manual")  // Only run manually, not in CI
+@Tag("manual") // Only run manually, not in CI
 public class FabricConnectionManualTest {
 
     @Autowired

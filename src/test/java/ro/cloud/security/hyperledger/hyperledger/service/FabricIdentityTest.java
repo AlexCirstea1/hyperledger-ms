@@ -1,18 +1,16 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
-import org.hyperledger.fabric.gateway.*;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.stream.Stream;
+import org.hyperledger.fabric.gateway.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Tag("manual")
@@ -56,8 +54,8 @@ public class FabricIdentityTest {
             // Read private key (first file in keystore directory)
             Path keyPath = null;
             try (Stream<Path> keyFiles = Files.list(userMspPath.resolve("keystore"))) {
-                keyPath = keyFiles.findFirst().orElseThrow(() ->
-                        new RuntimeException("No key files found in keystore directory"));
+                keyPath = keyFiles.findFirst()
+                        .orElseThrow(() -> new RuntimeException("No key files found in keystore directory"));
             }
             PrivateKey privateKey = Identities.readPrivateKey(Files.newBufferedReader(keyPath));
 

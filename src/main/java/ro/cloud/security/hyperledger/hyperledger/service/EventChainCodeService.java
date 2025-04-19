@@ -1,17 +1,16 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hyperledger.fabric.gateway.Contract;
@@ -71,8 +70,8 @@ public class EventChainCodeService {
     public List<DIDEvent> getEventsByUser(UUID userId) {
         try {
             byte[] result = eventContract.evaluateTransaction("queryEventsByUser", userId.toString());
-            return objectMapper.readValue(new String(result, StandardCharsets.UTF_8),
-                    new TypeReference<List<DIDEvent>>() {});
+            return objectMapper.readValue(
+                    new String(result, StandardCharsets.UTF_8), new TypeReference<List<DIDEvent>>() {});
         } catch (ContractException | JsonProcessingException e) {
             throw new IllegalStateException("Failed to query events by user from Fabric", e);
         }

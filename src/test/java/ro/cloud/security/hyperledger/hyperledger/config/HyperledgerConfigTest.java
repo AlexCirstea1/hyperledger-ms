@@ -1,11 +1,7 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
-import org.hyperledger.fabric.gateway.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -14,9 +10,12 @@ import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
+import org.hyperledger.fabric.gateway.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class HyperledgerConfigTest {
@@ -51,11 +50,11 @@ class HyperledgerConfigTest {
     @Test
     void gatewayBean_shouldLoadIdentity_and_buildGateway() throws Exception {
         // mocks for all the static calls inside gateway()
-        try (MockedStatic<Wallets>      walletsMock   = mockStatic(Wallets.class);
-             MockedStatic<Paths>        pathsMock     = mockStatic(Paths.class);
-             MockedStatic<Files>        filesMock     = mockStatic(Files.class);
-             MockedStatic<Identities>   idsMock       = mockStatic(Identities.class);
-             MockedStatic<Gateway>      gatewayStatic = mockStatic(Gateway.class)) {
+        try (MockedStatic<Wallets> walletsMock = mockStatic(Wallets.class);
+                MockedStatic<Paths> pathsMock = mockStatic(Paths.class);
+                MockedStatic<Files> filesMock = mockStatic(Files.class);
+                MockedStatic<Identities> idsMock = mockStatic(Identities.class);
+                MockedStatic<Gateway> gatewayStatic = mockStatic(Gateway.class)) {
 
             // Mock Paths.get(walletPath, "msp") directly
             Path mspDir = mock(Path.class);
@@ -64,7 +63,7 @@ class HyperledgerConfigTest {
             // 2) read cert
             Path signcerts = mock(Path.class);
             when(mspDir.resolve("signcerts")).thenReturn(signcerts);
-            Path certPem    = mock(Path.class);
+            Path certPem = mock(Path.class);
             when(signcerts.resolve("cert.pem")).thenReturn(certPem);
             BufferedReader certReader = mock(BufferedReader.class);
             filesMock.when(() -> Files.newBufferedReader(certPem)).thenReturn(certReader);
@@ -72,9 +71,9 @@ class HyperledgerConfigTest {
             idsMock.when(() -> Identities.readX509Certificate(certReader)).thenReturn(cert);
 
             // 3) read private key
-            Path keystore   = mock(Path.class);
+            Path keystore = mock(Path.class);
             when(mspDir.resolve("keystore")).thenReturn(keystore);
-            Path keyFile    = mock(Path.class);
+            Path keyFile = mock(Path.class);
             filesMock.when(() -> Files.list(keystore)).thenReturn(Stream.of(keyFile));
             BufferedReader keyReader = mock(BufferedReader.class);
             filesMock.when(() -> Files.newBufferedReader(keyFile)).thenReturn(keyReader);
@@ -82,17 +81,18 @@ class HyperledgerConfigTest {
             idsMock.when(() -> Identities.readPrivateKey(keyReader)).thenReturn(pkey);
 
             // 4) new in‑memory wallet + import identity
-            Wallet wallet    = mock(Wallet.class);
+            Wallet wallet = mock(Wallet.class);
             walletsMock.when(Wallets::newInMemoryWallet).thenReturn(wallet);
-            X509Identity id      = mock(X509Identity.class);
-            idsMock.when(() -> Identities.newX509Identity("Org1MSP", cert, pkey)).thenReturn(id);
+            X509Identity id = mock(X509Identity.class);
+            idsMock.when(() -> Identities.newX509Identity("Org1MSP", cert, pkey))
+                    .thenReturn(id);
 
             // 5) stub Gateway builder
             Path networkCfg = mock(Path.class);
             pathsMock.when(() -> Paths.get(networkConfigPath)).thenReturn(networkCfg);
 
             Gateway.Builder builder = mock(Gateway.Builder.class);
-            Gateway          gw      = mock(Gateway.class);
+            Gateway gw = mock(Gateway.class);
 
             gatewayStatic.when(Gateway::createBuilder).thenReturn(builder);
             when(builder.identity(wallet, userName)).thenReturn(builder);

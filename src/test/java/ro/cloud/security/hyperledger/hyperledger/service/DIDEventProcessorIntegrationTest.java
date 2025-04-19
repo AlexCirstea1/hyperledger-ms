@@ -1,5 +1,8 @@
 package ro.cloud.security.hyperledger.hyperledger.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -12,9 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ro.cloud.security.hyperledger.hyperledger.model.DIDEvent;
 import ro.cloud.security.hyperledger.hyperledger.model.EventType;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class DIDEventProcessorIntegrationTest {
@@ -36,7 +36,8 @@ public class DIDEventProcessorIntegrationTest {
     @Test
     void process_shouldSaveEventToBlockchain() throws Exception {
         // Arrange
-        String eventJson = "{\"userId\":\"550e8400-e29b-41d4-a716-446655440000\",\"eventType\":\"USER_REGISTERED\",\"payload\":\"{\\\"name\\\":\\\"John\\\",\\\"email\\\":\\\"john@example.com\\\"}\"}";
+        String eventJson =
+                "{\"userId\":\"550e8400-e29b-41d4-a716-446655440000\",\"eventType\":\"USER_REGISTERED\",\"payload\":\"{\\\"name\\\":\\\"John\\\",\\\"email\\\":\\\"john@example.com\\\"}\"}";
 
         Exchange exchange = new DefaultExchange(camelContext);
         exchange.getIn().setBody(eventJson);
