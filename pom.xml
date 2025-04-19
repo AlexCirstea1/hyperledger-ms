@@ -7,7 +7,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <groupId>ro.cloud.security.hyperledger</groupId>
@@ -18,20 +18,43 @@
 
     <properties>
         <java.version>21</java.version>
-        <camel.version>4.7.0</camel.version>
-        <hyperledger-fabric-sdk.version>2.2.26</hyperledger-fabric-sdk.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <camel.version>4.11.0</camel.version>
+        <hyperledger-fabric.version>2.2.26</hyperledger-fabric.version>
         <hyperledger-fabric-gateway.version>2.2.9</hyperledger-fabric-gateway.version>
+        <bouncycastle.version>1.79</bouncycastle.version>
+        <springdoc.version>2.5.0</springdoc.version>
+        <commons-codec.version>1.16.0</commons-codec.version>
+        <protobuf.version>4.28.3</protobuf.version>
         <modelmapper.version>3.2.0</modelmapper.version>
         <h2.version>2.2.224</h2.version>
         <testng.version>7.9.0</testng.version>
-        <protobuf.version>4.28.3</protobuf.version>
-        <bouncycastle.version>1.79</bouncycastle.version>
-        <springdoc.version>2.5.0</springdoc.version>
         <spotless.version>2.43.0</spotless.version>
+        <byte-buddy.version>1.15.11</byte-buddy.version>
+        <maven-enforcer.version>3.5.0</maven-enforcer.version>
+        <spring-boot.version>3.4.4</spring-boot.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring-Boot BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Apache Camel BOM -->
             <dependency>
                 <groupId>org.apache.camel.springboot</groupId>
@@ -40,8 +63,33 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Hyperledger Fabric -->
+            <dependency>
+                <groupId>org.hyperledger.fabric-sdk-java</groupId>
+                <artifactId>fabric-sdk-java</artifactId>
+                <version>${hyperledger-fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hyperledger.fabric</groupId>
+                <artifactId>fabric-gateway-java</artifactId>
+                <version>${hyperledger-fabric-gateway.version}</version>
+            </dependency>
+
+            <!-- BouncyCastle -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
 
     <dependencies>
         <!-- Spring Boot Starters -->
@@ -58,13 +106,11 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- Kafka -->
+        <!-- Messaging & Integration -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-
-        <!-- Apache Camel -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-spring-boot-starter</artifactId>
@@ -74,12 +120,39 @@
         <dependency>
             <groupId>org.hyperledger.fabric-sdk-java</groupId>
             <artifactId>fabric-sdk-java</artifactId>
-            <version>${hyperledger-fabric-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hyperledger.fabric</groupId>
             <artifactId>fabric-gateway-java</artifactId>
-            <version>${hyperledger-fabric-gateway.version}</version>
+        </dependency>
+
+        <!-- Security -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+
+        <!-- API Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
 
         <!-- Utility Libraries -->
@@ -99,39 +172,8 @@
             <version>${protobuf.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.16.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <!-- Security -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency>
-
-        <!-- Database -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-        </dependency>
-
-        <!-- API Documentation -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
         </dependency>
 
         <!-- Testing -->
