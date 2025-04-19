@@ -22,7 +22,7 @@ Organizations:
     # ID to load the MSP definition as
     ID: OrdererMSP
     # MSPDir is the filesystem path which contains the MSP configuration
-    MSPDir: ../organizations/ordererOrganizations/example.com/msp
+    MSPDir: ../organizations/ordererOrganizations/vaultx.com/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -37,17 +37,17 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.example.com:7050
-      - orderer2.example.com:7052
-      - orderer3.example.com:7056
-      - orderer4.example.com:7058
+      - orderer.vaultx.com:7050
+      - orderer2.vaultx.com:7052
+      - orderer3.vaultx.com:7056
+      - orderer4.vaultx.com:7058
   - &Org1
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
     Name: Org1MSP
     # ID to load the MSP definition as
     ID: Org1MSP
-    MSPDir: ../organizations/peerOrganizations/org1.example.com/msp
+    MSPDir: ../organizations/peerOrganizations/org1.vaultx.com/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -70,7 +70,7 @@ Organizations:
     Name: Org2MSP
     # ID to load the MSP definition as
     ID: Org2MSP
-    MSPDir: ../organizations/peerOrganizations/org2.example.com/msp
+    MSPDir: ../organizations/peerOrganizations/org2.vaultx.com/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -277,33 +277,33 @@ Profiles:
         LeaderHeartbeatCount: 10
       ConsenterMapping:
         - ID: 1
-          Host: orderer.example.com
+          Host: orderer.vaultx.com
           Port: 7050
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/signcerts/orderer.example.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer.vaultx.com/msp/signcerts/orderer.vaultx.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer.vaultx.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer.vaultx.com/tls/server.crt
         - ID: 2
-          Host: orderer2.example.com
+          Host: orderer2.vaultx.com
           Port: 7052
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/signcerts/orderer2.example.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer2.vaultx.com/msp/signcerts/orderer2.vaultx.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer2.vaultx.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer2.vaultx.com/tls/server.crt
         - ID: 3
-          Host: orderer3.example.com
+          Host: orderer3.vaultx.com
           Port: 7056
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/example.com/orderers/orderer3.example.com/msp/signcerts/orderer3.example.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer3.vaultx.com/msp/signcerts/orderer3.vaultx.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer3.vaultx.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer3.vaultx.com/tls/server.crt
         - ID: 4
-          Host: orderer4.example.com
+          Host: orderer4.vaultx.com
           Port: 7058
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/msp/signcerts/orderer4.example.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer4.vaultx.com/msp/signcerts/orderer4.vaultx.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer4.vaultx.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/vaultx.com/orderers/orderer4.vaultx.com/tls/server.crt
     Application:
       <<: *ApplicationDefaults
       Organizations:

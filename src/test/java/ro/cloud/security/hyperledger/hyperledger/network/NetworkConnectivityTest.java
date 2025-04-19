@@ -14,21 +14,21 @@ public class NetworkConnectivityTest {
     @Test
     void testPeerHostResolution() throws Exception {
         // Test if hosts can be resolved
-        assertTrue(InetAddress.getByName("peer0.org1.example.com").isReachable(1000),
-                "peer0.org1.example.com is not reachable");
+        assertTrue(InetAddress.getByName("peer0.org1.vaultx.com").isReachable(1000),
+                "peer0.org1.vaultx.com is not reachable");
 
-        assertTrue(InetAddress.getByName("peer0.org2.example.com").isReachable(1000),
-                "peer0.org2.example.com is not reachable");
+        assertTrue(InetAddress.getByName("peer0.org2.vaultx.com").isReachable(1000),
+                "peer0.org2.vaultx.com is not reachable");
     }
 
     @Test
     void testPeerPortConnectivity() {
         // Test if ports are open
-        assertTrue(isPortOpen("peer0.org1.example.com", 7051),
-                "Cannot connect to peer0.org1.example.com:7051");
+        assertTrue(isPortOpen("peer0.org1.vaultx.com", 7051),
+                "Cannot connect to peer0.org1.vaultx.com:7051");
 
-        assertTrue(isPortOpen("peer0.org2.example.com", 9051),
-                "Cannot connect to peer0.org2.example.com:9051");
+        assertTrue(isPortOpen("peer0.org2.vaultx.com", 9051),
+                "Cannot connect to peer0.org2.vaultx.com:9051");
     }
 
     private boolean isPortOpen(String host, int port) {
