@@ -40,7 +40,7 @@ public class HyperledgerConfig {
         Path mspDir = Paths.get(walletPath);
 
         // cert.pem
-        Path certPath = mspDir.resolve("signcerts").resolve("cert.pem");
+        Path certPath = mspDir.resolve("signcerts").resolve("Admin@org1.example.com-cert.pem");
         X509Certificate certificate = Identities.readX509Certificate(Files.newBufferedReader(certPath));
 
         // private key (there’s only one file in keystore/)
