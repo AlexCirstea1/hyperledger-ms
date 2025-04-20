@@ -40,7 +40,7 @@ public class HyperledgerConfig {
         Path mspDir = Paths.get(walletPath);
 
         // cert.pem
-        Path certPath = mspDir.resolve("signcerts").resolve("Admin@org1.example.com-cert.pem");
+        Path certPath = mspDir.resolve("signcerts").resolve("Admin@org0.example.com-cert.pem");
         X509Certificate certificate = Identities.readX509Certificate(Files.newBufferedReader(certPath));
 
         // private key (there’s only one file in keystore/)
@@ -48,7 +48,7 @@ public class HyperledgerConfig {
         Path keyPath = Files.list(keyDir).findFirst().orElseThrow(() -> new IOException("No private key in " + keyDir));
         PrivateKey privateKey = Identities.readPrivateKey(Files.newBufferedReader(keyPath));
 
-        Identity identity = Identities.newX509Identity(/* mspId = */ "Org1MSP", certificate, privateKey);
+        Identity identity = Identities.newX509Identity(/* mspId = */ "Org0MSP", certificate, privateKey);
         wallet.put(userName, identity);
 
         // 2) build and connect the gateway
