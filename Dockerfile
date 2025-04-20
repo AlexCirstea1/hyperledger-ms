@@ -16,7 +16,7 @@ FROM amazoncorretto:21
 WORKDIR /app
 
 # Install tar so we can extract certs.tgz at startup
-RUN yum install -y tar \
+RUN yum install -y tar gzip \
  && yum clean all
 
 # Copy the fat JAR from the build stage
