@@ -11,11 +11,13 @@ import java.security.cert.X509Certificate;
 import lombok.Data;
 import org.hyperledger.fabric.gateway.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Data
+@ConditionalOnProperty(name = "fabric.enabled", havingValue = "true", matchIfMissing = true)
 public class HyperledgerConfig {
 
     @Value("${fabric.wallet.path}")
