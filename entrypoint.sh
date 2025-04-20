@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+ls -la /opt/fabric/vars
 
 # 1) Look for the mounted vars folder
 for BASE in /opt/fabric/vars /opt/fabric/fabric-mini/vars; do
