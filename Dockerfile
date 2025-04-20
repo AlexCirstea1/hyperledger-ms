@@ -7,17 +7,11 @@ COPY src/ src/
 RUN mvn clean package -DskipTests
 
 FROM amazoncorretto:21
-WORKDIR /app
+COPY --from=build /target/*.jar /app/app.jar
 
-# Copy the fat JAR
-COPY --from=build /app/target/*.jar app.jar
-
-# Copy & make executable our entrypoint
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Expose port
 EXPOSE 8082
+
+# Set the active profile
 ENV SPRING_PROFILES_ACTIVE=test
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["java","-Dspring.profiles.active=test","-jar","/app/app.jar"]
