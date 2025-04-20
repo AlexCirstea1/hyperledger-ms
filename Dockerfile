@@ -4,7 +4,7 @@
 FROM maven:3.9.6-amazoncorretto-21 AS build
 COPY ./src src/
 COPY ./pom.xml pom.xml
-RUN mvn clean package  -DskipTests
+RUN mvn clean package -DskipTests
 
 #
 # Package stage
