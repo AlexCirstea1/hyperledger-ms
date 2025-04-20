@@ -19,36 +19,36 @@ import org.springframework.context.annotation.Configuration;
 public class HyperledgerConfig {
 
     @Value("${fabric.wallet.path}")
-    private String walletPath; // e.g. .../users/appUser
+    private String walletPath;
 
     @Value("${fabric.user-name}")
-    private String userName; // “appUser”
+    private String userName;
 
     @Value("${fabric.network.config}")
-    private String networkConfigPath; // connection‑org1.yaml
+    private String networkConfigPath;
 
     @Value("${fabric.channel-name}")
-    private String channelName; // “mychannel”
+    private String channelName;
 
     @Value("${fabric.contract-name}")
-    private String contractName; // “vaultx‑event”
+    private String contractName;
 
     @Bean
     public Gateway gateway() throws IOException, CertificateException, InvalidKeyException {
-        // 1) load the wallet (in‑memory) and import your MSP‐issued identity
+        // 1) Load the wallet (in-memory) and import your MSP-issued identity
         Wallet wallet = Wallets.newInMemoryWallet();
         Path mspDir = Paths.get(walletPath);
 
         // cert.pem
-        Path certPath = mspDir.resolve("signcerts").resolve("Admin@org0.example.com-cert.pem");
+        Path certPath = mspDir.resolve("signcerts").resolve("Admin@vaultx.example.com-cert.pem");
         X509Certificate certificate = Identities.readX509Certificate(Files.newBufferedReader(certPath));
 
-        // private key (there’s only one file in keystore/)
+        // private key (there's only one file in keystore/)
         Path keyDir = mspDir.resolve("keystore");
         Path keyPath = Files.list(keyDir).findFirst().orElseThrow(() -> new IOException("No private key in " + keyDir));
         PrivateKey privateKey = Identities.readPrivateKey(Files.newBufferedReader(keyPath));
 
-        Identity identity = Identities.newX509Identity(/* mspId = */ "Org0MSP", certificate, privateKey);
+        Identity identity = Identities.newX509Identity(/* mspId = */ "VaultXMSP", certificate, privateKey);
         wallet.put(userName, identity);
 
         // 2) build and connect the gateway
