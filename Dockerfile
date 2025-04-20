@@ -13,10 +13,8 @@ RUN mvn clean package
 #
 FROM amazoncorretto:21
 COPY --from=build /target/*.jar /app/app.jar
-
-# Copy in the cert bundle and connection profiles
-COPY --from=builder /home/alex/fabric-mini/vars/certs.tgz  /opt/fabric/certs.tgz
-COPY --from=builder /home/alex/fabric-mini/vars/profiles     /opt/fabric/profiles
+COPY --from=build /home/alex/fabric-mini/vars/certs.tgz /opt/fabric/certs.tgz
+COPY --from=build /home/alex/fabric-mini/vars/profiles /opt/fabric/profiles
 
 # Unpack “keyfiles/…” into the organizations tree
 RUN mkdir -p /opt/fabric/organizations \
