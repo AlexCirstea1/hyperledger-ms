@@ -37,7 +37,7 @@ public class HyperledgerConfig {
     public Gateway gateway() throws IOException, CertificateException, InvalidKeyException {
         // 1) load the wallet (in‑memory) and import your MSP‐issued identity
         Wallet wallet = Wallets.newInMemoryWallet();
-        Path mspDir = Paths.get(walletPath, "msp");
+        Path mspDir = Paths.get(walletPath);
 
         // cert.pem
         Path certPath = mspDir.resolve("signcerts").resolve("cert.pem");
