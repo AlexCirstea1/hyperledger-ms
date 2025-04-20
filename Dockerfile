@@ -12,7 +12,7 @@ RUN mvn clean package -DskipTests
 FROM amazoncorretto:21
 COPY --from=build /target/*.jar /app/app.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 # Set the active profile
 ENV SPRING_PROFILES_ACTIVE=test
