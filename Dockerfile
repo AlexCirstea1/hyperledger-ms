@@ -1,15 +1,18 @@
+#
+# Build stage
+#
 FROM maven:3.9.6-amazoncorretto-21 AS build
-WORKDIR /app
+COPY ./src src/
+COPY ./pom.xml pom.xml
+RUN mvn clean package  -DskipTests
 
-# Copy and build
-COPY pom.xml .
-COPY src/ src/
-RUN mvn clean package -DskipTests
-
+#
+# Package stage
+#
 FROM amazoncorretto:21
 COPY --from=build /target/*.jar /app/app.jar
 
-EXPOSE 8082
+EXPOSE 8081
 
 # Set the active profile
 ENV SPRING_PROFILES_ACTIVE=test
