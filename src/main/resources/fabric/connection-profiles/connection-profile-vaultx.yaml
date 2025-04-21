@@ -1,0 +1,53 @@
+name: fablo-test-network-vaultx
+description: Connection profile for VaultX in Fablo network
+version: 1.0.0
+client:
+  organization: VaultX
+organizations:
+  VaultX:
+    mspid: VaultXMSP
+    peers:
+      - peer0.vaultx.example.com
+      - peer1.vaultx.example.com
+      - peer0.client.example.com
+      - peer1.client.example.com
+    certificateAuthorities:
+      - ca.vaultx.example.com
+peers:
+  peer0.vaultx.example.com:
+    url: grpcs://localhost:7041
+    tlsCACerts:
+      path: >-
+        /Users/alexcirstea/Documents/ISM/MasterThesis/App/hyperledger-ms/src/main/resources/fabric/crypto-config/peerOrganizations/vaultx.example.com/peers/peer0.vaultx.example.com/tls/ca.crt
+    grpcOptions:
+      ssl-target-name-override: peer0.vaultx.example.com
+  peer1.vaultx.example.com:
+    url: grpcs://localhost:7042
+    tlsCACerts:
+      path: >-
+        /Users/alexcirstea/Documents/ISM/MasterThesis/App/hyperledger-ms/src/main/resources/fabric/crypto-config/peerOrganizations/vaultx.example.com/peers/peer1.vaultx.example.com/tls/ca.crt
+    grpcOptions:
+      ssl-target-name-override: peer1.vaultx.example.com
+  peer0.client.example.com:
+    url: grpcs://localhost:7061
+    tlsCACerts:
+      path: >-
+        /Users/alexcirstea/Documents/ISM/MasterThesis/App/hyperledger-ms/src/main/resources/fabric/crypto-config/peerOrganizations/client.example.com/peers/peer0.client.example.com/tls/ca.crt
+    grpcOptions:
+      ssl-target-name-override: peer0.client.example.com
+  peer1.client.example.com:
+    url: grpcs://localhost:7062
+    tlsCACerts:
+      path: >-
+        /Users/alexcirstea/Documents/ISM/MasterThesis/App/hyperledger-ms/src/main/resources/fabric/crypto-config/peerOrganizations/client.example.com/peers/peer1.client.example.com/tls/ca.crt
+    grpcOptions:
+      ssl-target-name-override: peer1.client.example.com
+certificateAuthorities:
+  ca.vaultx.example.com:
+    url: https://localhost:7040
+    caName: ca.vaultx.example.com
+    tlsCACerts:
+      path: >-
+        /Users/alexcirstea/Documents/ISM/MasterThesis/App/hyperledger-ms/src/main/resources/fabric/crypto-config/peerOrganizations/vaultx.example.com/ca/ca.vaultx.example.com-cert.pem
+    httpOptions:
+      verify: false
