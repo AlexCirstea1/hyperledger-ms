@@ -1,8 +1,0 @@
-PeerOrgs:
-  - Name: Client
-    Domain: client.example.com
-    Specs:
-    Template:
-      Count: 2
-    Users:
-      Count: 1
