@@ -1,0 +1,8 @@
+PeerOrgs:
+  - Name: VaultX
+    Domain: vaultx.example.com
+    Specs:
+    Template:
+      Count: 2
+    Users:
+      Count: 1
