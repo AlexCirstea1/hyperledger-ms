@@ -17,7 +17,7 @@ peers:
   peer0.vaultx.example.com:
     url: grpcs://localhost:7041
     tlsCACerts:
-      pem:
+      pem: |
         -----BEGIN CERTIFICATE-----
         MIICXzCCAgWgAwIBAgIQMr4FmqzC6wXun85kPHuPfTAKBggqhkjOPQQDAjB6MQsw
         CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy
@@ -38,7 +38,7 @@ peers:
   peer1.vaultx.example.com:
     url: grpcs://localhost:7042
     tlsCACerts:
-      pem:
+      pem: |
         -----BEGIN CERTIFICATE-----
         MIICXzCCAgWgAwIBAgIQMr4FmqzC6wXun85kPHuPfTAKBggqhkjOPQQDAjB6MQsw
         CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy
@@ -59,7 +59,7 @@ peers:
   peer0.client.example.com:
     url: grpcs://localhost:7061
     tlsCACerts:
-      pem:
+      pem: |
         -----BEGIN CERTIFICATE-----
         MIICXzCCAgWgAwIBAgIQb8JrDUQS+k3izYv/JfCnnjAKBggqhkjOPQQDAjB6MQsw
         CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy
@@ -80,7 +80,7 @@ peers:
   peer1.client.example.com:
     url: grpcs://localhost:7062
     tlsCACerts:
-      pem:
+      pem: |
         -----BEGIN CERTIFICATE-----
         MIICXzCCAgWgAwIBAgIQb8JrDUQS+k3izYv/JfCnnjAKBggqhkjOPQQDAjB6MQsw
         CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy
@@ -103,7 +103,7 @@ certificateAuthorities:
     url: https://localhost:7040
     caName: ca.vaultx.example.com
     tlsCACerts:
-      pem:
+      pem: |
         -----BEGIN CERTIFICATE-----
         MIICWzCCAgCgAwIBAgIRAJ20ZxTepvYIYxUeA3UrMgIwCgYIKoZIzj0EAwIwdzEL
         MAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBG
