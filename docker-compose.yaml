@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  hyperledger-ms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: host
+
+    volumes:
+      - /home/alex/fabric/fablo-target:/app/fablo-target:ro
+
+    environment:
+      SPRING_PROFILES_ACTIVE: test
