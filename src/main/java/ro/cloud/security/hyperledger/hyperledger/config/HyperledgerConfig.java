@@ -1,5 +1,6 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,15 +10,18 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.gateway.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 @Configuration
 @Data
-@ConditionalOnProperty(name = "fabric.enabled", havingValue = "true", matchIfMissing = true)
+@RequiredArgsConstructor
 public class HyperledgerConfig {
 
     @Value("${fabric.wallet.path}")
@@ -35,29 +39,37 @@ public class HyperledgerConfig {
     @Value("${fabric.contract-name}")
     private String contractName;
 
+    private final ResourceLoader resourceLoader;
+
     @Bean
     public Gateway gateway() throws IOException, CertificateException, InvalidKeyException {
-        // 1) Load the wallet (in-memory) and import your MSP-issued identity
+        // Load wallet and identity
         Wallet wallet = Wallets.newInMemoryWallet();
-        Path mspDir = Paths.get(walletPath);
 
-        // cert.pem
-        Path certPath = mspDir.resolve("signcerts").resolve("Admin@vaultx.example.com-cert.pem");
-        X509Certificate certificate = Identities.readX509Certificate(Files.newBufferedReader(certPath));
+        // Convert classpath resources to actual files
+        Resource mspResource = resourceLoader.getResource(walletPath);
+        File mspDir = mspResource.getFile();
 
-        // private key (there's only one file in keystore/)
-        Path keyDir = mspDir.resolve("keystore");
-        Path keyPath = Files.list(keyDir).findFirst().orElseThrow(() -> new IOException("No private key in " + keyDir));
-        PrivateKey privateKey = Identities.readPrivateKey(Files.newBufferedReader(keyPath));
+        // Load certificate
+        File certFile = new File(mspDir, "signcerts/Admin@vaultx.example.com-cert.pem");
+        X509Certificate certificate = Identities.readX509Certificate(Files.newBufferedReader(certFile.toPath()));
 
-        Identity identity = Identities.newX509Identity(/* mspId = */ "VaultXMSP", certificate, privateKey);
+        // Load private key
+        File keyDir = new File(mspDir, "keystore");
+        File keyFile = keyDir.listFiles()[0]; // Get the first file in keystore
+        PrivateKey privateKey = Identities.readPrivateKey(Files.newBufferedReader(keyFile.toPath()));
+
+        // Create identity and set up wallet
+        Identity identity = Identities.newX509Identity("VaultXMSP", certificate, privateKey);
         wallet.put(userName, identity);
 
-        // 2) build and connect the gateway
-        Path networkConfig = Paths.get(networkConfigPath);
+        // Set up gateway
+        Resource networkConfigResource = resourceLoader.getResource(networkConfigPath);
+        File networkConfigFile = networkConfigResource.getFile();
+
         return Gateway.createBuilder()
                 .identity(wallet, userName)
-                .networkConfig(networkConfig)
+                .networkConfig(networkConfigFile.toPath())
                 .discovery(true)
                 .connect();
     }
