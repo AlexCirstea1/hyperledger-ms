@@ -1,9 +1,11 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
@@ -13,13 +15,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.gateway.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
 
 @Configuration
 @Data
@@ -27,17 +27,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 public class HyperledgerConfig {
 
     @Value("${fabric.wallet.path}")
-    private String walletPath;
-
+    private String walletPath;                         // e.g. "classpath:fabric/crypto-config/.../msp"
     @Value("${fabric.user-name}")
-    private String userName;
-
+    private String userName;                           // e.g. "Admin@vaultx.example.com"
     @Value("${fabric.network.config}")
-    private String networkConfigPath;
-
+    private String networkConfigPath;                  // e.g. "classpath:fabric/connection-profiles/connection-profile-vaultx.yaml"
     @Value("${fabric.channel-name}")
     private String channelName;
-
     @Value("${fabric.contract-name}")
     private String contractName;
 
@@ -45,63 +41,49 @@ public class HyperledgerConfig {
 
     @Bean
     public Gateway gateway() throws IOException, CertificateException, InvalidKeyException {
-        // Load wallet and identity
+        // 1) In‑memory wallet
         Wallet wallet = Wallets.newInMemoryWallet();
 
-        // Load resources using input streams instead of files
-        Resource mspResource = resourceLoader.getResource(walletPath);
-
-        // Load certificate using input stream
-        Resource certResource = resourceLoader.getResource(walletPath + "/signcerts/Admin@vaultx.example.com-cert.pem");
+        // 2) Load the X.509 cert
+        Resource certRes = resourceLoader.getResource(
+                walletPath + "/signcerts/Admin@vaultx.example.com-cert.pem");
         X509Certificate certificate;
-        try (var reader = new BufferedReader(new InputStreamReader(certResource.getInputStream()))) {
-            certificate = Identities.readX509Certificate(reader);
+        try (BufferedReader certReader = new BufferedReader(
+                new InputStreamReader(certRes.getInputStream()))) {
+            certificate = Identities.readX509Certificate(certReader);
         }
 
-        // Find keystore file in resources
-        Resource keystoreDir = resourceLoader.getResource(walletPath + "/keystore");
-        // We need to find the key file - assuming there's a single key file
-        String keyFileName = null;
+        // 3) Find the single private‑key file in keystore/
+        PathMatchingResourcePatternResolver resolver =
+                new PathMatchingResourcePatternResolver(resourceLoader);
 
-        // If running from JAR, we'll need to search for the key file
-        if (keystoreDir.exists()) {
-            // For resource directories in JAR we need a different approach
-            // This is a simplified example - you might need to adapt based on your actual resource structure
-            Resource[] keyResources = new PathMatchingResourcePatternResolver(resourceLoader)
-                    .getResources(walletPath + "/keystore/*");
-            if (keyResources.length > 0) {
-                // Get the first key file
-                keyFileName = keyResources[0].getFilename();
-            }
+        Resource[] keyResources = resolver.getResources(
+                walletPath + "/keystore/*");
+        if (keyResources.length == 0) {
+            throw new IOException("No key file found in " + walletPath + "/keystore");
         }
-
-        if (keyFileName == null) {
-            throw new IOException("Private key file not found in keystore directory");
-        }
-
-        // Load private key using input stream
-        Resource keyResource = resourceLoader.getResource(walletPath + "/keystore/" + keyFileName);
+        Resource keyRes = keyResources[0];
         PrivateKey privateKey;
-        try (var reader = new BufferedReader(new InputStreamReader(keyResource.getInputStream()))) {
-            privateKey = Identities.readPrivateKey(reader);
+        try (BufferedReader keyReader = new BufferedReader(
+                new InputStreamReader(keyRes.getInputStream()))) {
+            privateKey = Identities.readPrivateKey(keyReader);
         }
 
-        // Create identity and set up wallet
+        // 4) Put identity into wallet
         Identity identity = Identities.newX509Identity("VaultXMSP", certificate, privateKey);
         wallet.put(userName, identity);
 
-        // Set up gateway using input stream for network config
-        Resource networkConfigResource = resourceLoader.getResource(networkConfigPath);
-
-        // Load connection profile as a YAML file from input stream
-        Path tempNetworkConfigPath = Files.createTempFile("connection-profile", ".yaml");
-        try (InputStream is = networkConfigResource.getInputStream()) {
-            Files.copy(is, tempNetworkConfigPath, StandardCopyOption.REPLACE_EXISTING);
+        // 5) Copy your inline‑pem connection‑profile YAML to a temp file
+        Resource netCfgRes = resourceLoader.getResource(networkConfigPath);
+        Path tmpYaml = Files.createTempFile("connection-profile-", ".yaml");
+        try (InputStream is = netCfgRes.getInputStream()) {
+            Files.copy(is, tmpYaml, StandardCopyOption.REPLACE_EXISTING);
         }
 
+        // 6) Build the Gateway
         return Gateway.createBuilder()
                 .identity(wallet, userName)
-                .networkConfig(tempNetworkConfigPath)
+                .networkConfig(tmpYaml)    // reads the PEM blobs inline
                 .discovery(true)
                 .connect();
     }
