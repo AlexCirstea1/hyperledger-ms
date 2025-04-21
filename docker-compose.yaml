@@ -6,12 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     network_mode: host
-    volumes:
-      - /home/alex/fabric/fablo-target:/app/fablo-target:ro
     environment:
       SPRING_PROFILES_ACTIVE: test
-      CHANNEL_NAME:       vaultx-channel
-      CONTRACT_NAME:      vaultx-event
-      USER_NAME:          Admin@vaultx.example.com
-      NETWORK_CONFIG:     file:/app/fablo-target/fabric-config/connection-profiles/connection-profile-vaultx.yaml
-      WALLET_PATH:        file:/app/fablo-target/fabric-config/crypto-config/peerOrganizations/vaultx.example.com/users/Admin@vaultx.example.com/msp
