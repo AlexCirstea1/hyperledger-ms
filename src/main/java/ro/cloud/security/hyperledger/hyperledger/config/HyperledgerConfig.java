@@ -1,89 +1,116 @@
 package ro.cloud.security.hyperledger.hyperledger.config;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.InvalidKeyException;
-import java.security.PrivateKey;
-import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.gateway.*;
+import org.hyperledger.fabric.sdk.Enrollment;
+import org.hyperledger.fabric_ca.sdk.HFCAClient;
+import org.hyperledger.fabric.sdk.helper.Config;
+import org.hyperledger.fabric.sdk.security.CryptoSuite;
+import org.hyperledger.fabric.sdk.security.CryptoSuiteFactory;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 @Configuration
 @Data
 @RequiredArgsConstructor
 public class HyperledgerConfig {
 
-    @Value("${fabric.wallet.path}")
-    private String walletPath;                         // e.g. "classpath:fabric/crypto-config/.../msp"
+    // CA properties
+    @Value("${fabric.ca.url}")
+    private String caUrl;
+
+    @Value("${fabric.ca.admin.name}")
+    private String caAdmin;
+
+    @Value("${fabric.ca.admin.secret}")
+    private String caAdminSecret;
+
+    @Value("${fabric.ca.tlsCert.path}")
+    private String caTlsCertPath;
+
+    @Value("${fabric.ca.allowAllHostNames}")
+    private boolean allowAllHostNames;
+
+    // Wallet identity + MSP
+    @Value("${fabric.msp.id}")
+    private String mspId;
+
     @Value("${fabric.user-name}")
-    private String userName;                           // e.g. "Admin@vaultx.example.com"
+    private String userName;
+
+    // Network YAML
     @Value("${fabric.network.config}")
-    private String networkConfigPath;                  // e.g. "classpath:fabric/connection-profiles/connection-profile-vaultx.yaml"
+    private String networkConfigPath;
+
+    // Channel / Contract
     @Value("${fabric.channel-name}")
     private String channelName;
+
     @Value("${fabric.contract-name}")
     private String contractName;
 
     private final ResourceLoader resourceLoader;
 
     @Bean
-    public Gateway gateway() throws IOException, CertificateException, InvalidKeyException {
-        // 1) In‑memory wallet
+    public Gateway gateway() throws Exception {
+        // 1) Prepare the CA client
+        Resource caCertRes = resourceLoader.getResource(caTlsCertPath);
+        Path tmpCaCert = Files.createTempFile("ca-cert-", ".pem");
+        try (InputStream is = caCertRes.getInputStream()) {
+            Files.copy(is, tmpCaCert, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        Properties caProps = new Properties();
+        caProps.put("pemFile", tmpCaCert.toString());
+        caProps.put("allowAllHostNames", Boolean.toString(allowAllHostNames));
+
+        HFCAClient caClient = HFCAClient.createNewInstance(caUrl, caProps);
+        CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
+        caClient.setCryptoSuite(cryptoSuite);
+
+        // 2) Enroll the admin user
+        Enrollment enrollment = caClient.enroll(caAdmin, caAdminSecret);
+
+        // 3) Create wallet identity
         Wallet wallet = Wallets.newInMemoryWallet();
 
-        // 2) Load the X.509 cert
-        Resource certRes = resourceLoader.getResource(
-                walletPath + "/signcerts/Admin@vaultx.example.com-cert.pem");
-        X509Certificate certificate;
-        try (BufferedReader certReader = new BufferedReader(
-                new InputStreamReader(certRes.getInputStream()))) {
-            certificate = Identities.readX509Certificate(certReader);
-        }
+        // Convert certificate string to X509Certificate
+        String certPEM = enrollment.getCert();
+        ByteArrayInputStream certInputStream = new ByteArrayInputStream(certPEM.getBytes(StandardCharsets.UTF_8));
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        X509Certificate x509Certificate = (X509Certificate) certFactory.generateCertificate(certInputStream);
 
-        // 3) Find the single private‑key file in keystore/
-        PathMatchingResourcePatternResolver resolver =
-                new PathMatchingResourcePatternResolver(resourceLoader);
+        Identity adminIdentity = Identities.newX509Identity(mspId,
+                x509Certificate,
+                enrollment.getKey());
+        wallet.put(userName, adminIdentity);
 
-        Resource[] keyResources = resolver.getResources(
-                walletPath + "/keystore/*");
-        if (keyResources.length == 0) {
-            throw new IOException("No key file found in " + walletPath + "/keystore");
-        }
-        Resource keyRes = keyResources[0];
-        PrivateKey privateKey;
-        try (BufferedReader keyReader = new BufferedReader(
-                new InputStreamReader(keyRes.getInputStream()))) {
-            privateKey = Identities.readPrivateKey(keyReader);
-        }
-
-        // 4) Put identity into wallet
-        Identity identity = Identities.newX509Identity("VaultXMSP", certificate, privateKey);
-        wallet.put(userName, identity);
-
-        // 5) Copy your inline‑pem connection‑profile YAML to a temp file
+        // 4) Copy connection-profile YAML (with inline PEMs) to a temp file
         Resource netCfgRes = resourceLoader.getResource(networkConfigPath);
-        Path tmpYaml = Files.createTempFile("connection-profile-", ".yaml");
+        Path tmpYaml = Files.createTempFile("conn-profile-", ".yaml");
         try (InputStream is = netCfgRes.getInputStream()) {
             Files.copy(is, tmpYaml, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        // 6) Build the Gateway
+        // 5) Build and return the Gateway
         return Gateway.createBuilder()
                 .identity(wallet, userName)
-                .networkConfig(tmpYaml)    // reads the PEM blobs inline
+                .networkConfig(tmpYaml)
                 .discovery(true)
                 .connect();
     }
