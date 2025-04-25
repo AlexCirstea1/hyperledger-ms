@@ -1,18 +1,18 @@
-name: fablo-test-network-vaultx
-description: Connection profile for VaultX in Fablo network
+name: fablo-test-network-client
+description: Connection profile for Client in Fablo network
 version: 1.0.0
 client:
-  organization: VaultX
+  organization: Client
 organizations:
-  VaultX:
-    mspid: VaultXMSP
+  Client:
+    mspid: ClientMSP
     peers:
       - peer0.vaultx.example.com
       - peer1.vaultx.example.com
       - peer0.client.example.com
       - peer1.client.example.com
     certificateAuthorities:
-      - ca.vaultx.example.com
+      - ca.client.example.com
 peers:
   peer0.vaultx.example.com:
     url: grpcs://localhost:7041
@@ -43,11 +43,11 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer1.client.example.com
 certificateAuthorities:
-  ca.vaultx.example.com:
-    url: https://localhost:7040
-    caName: ca.vaultx.example.com
+  ca.client.example.com:
+    url: https://localhost:7060
+    caName: ca.client.example.com
     tlsCACerts:
       path: >-
-        /home/alex/fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/vaultx.example.com/ca/ca.vaultx.example.com-cert.pem
+        /home/alex/fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/client.example.com/ca/ca.client.example.com-cert.pem
     httpOptions:
       verify: false
