@@ -8,6 +8,8 @@ services:
     # remove host-mode; instead join the Fablo network
     networks:
       basic_net:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       SPRING_PROFILES_ACTIVE: test
 
