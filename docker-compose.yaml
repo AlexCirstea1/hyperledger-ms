@@ -20,10 +20,7 @@ services:
           - peer1.vaultx.example.com
           - peer0.client.example.com
           - peer1.client.example.com
-
-    depends_on:               # optional; lets Compose start CA first
-      - ca.vaultx.example.com
-
+          -
     environment:
       SPRING_PROFILES_ACTIVE: test
       OTEL_SDK_DISABLED: "true"
