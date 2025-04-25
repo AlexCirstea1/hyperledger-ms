@@ -5,6 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: host
+    # remove host-mode; instead join the Fablo network
+    networks:
+      basic_net:
     environment:
       SPRING_PROFILES_ACTIVE: test
+
+# declare that “basic_net” is external, and map it to the FABLO network name
+networks:
+  basic_net:
+    external:
+      name: fablo_network_202504250917_basic

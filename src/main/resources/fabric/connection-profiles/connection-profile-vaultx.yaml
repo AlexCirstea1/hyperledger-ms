@@ -15,7 +15,7 @@ organizations:
       - ca.vaultx.example.com
 peers:
   peer0.vaultx.example.com:
-    url: grpcs://192.168.50.128:7041
+    url: grpcs://peer0.vaultx.example.com:7041
     tlsCACerts:
       pem: |
         -----BEGIN CERTIFICATE-----
@@ -36,7 +36,7 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer0.vaultx.example.com
   peer1.vaultx.example.com:
-    url: grpcs://192.168.50.128:7042
+    url: grpcs://peer1.vaultx.example.com:7042
     tlsCACerts:
       pem: |
         -----BEGIN CERTIFICATE-----
@@ -57,7 +57,7 @@ peers:
       grpcOptions:
       ssl-target-name-override: peer1.vaultx.example.com
   peer0.client.example.com:
-    url: grpcs://192.168.50.128:7061
+    url: grpcs://peer0.client.example.com:7061
     tlsCACerts:
       pem: |
         -----BEGIN CERTIFICATE-----
@@ -78,7 +78,7 @@ peers:
       grpcOptions:
       ssl-target-name-override: peer0.client.example.com
   peer1.client.example.com:
-    url: grpcs://192.168.50.128:7062
+    url: grpcs://peer1.client.example.com:7062
     tlsCACerts:
       pem: |
         -----BEGIN CERTIFICATE-----
@@ -100,7 +100,7 @@ peers:
       ssl-target-name-override: peer1.client.example.com
 certificateAuthorities:
   ca.vaultx.example.com:
-    url: https://192.168.50.128:7040
+    url: https://ca.vaultx.example.com:7054
     caName: ca.vaultx.example.com
     tlsCACerts:
       pem: |
