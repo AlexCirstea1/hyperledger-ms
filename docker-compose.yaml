@@ -10,8 +10,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-
-    # attach to the external network
+    ports:
+      - "8082:8082"  # Map exposed port from Dockerfile
     networks:
       fablo_basic:
         aliases:              # guarantees DNS for these hostnames
