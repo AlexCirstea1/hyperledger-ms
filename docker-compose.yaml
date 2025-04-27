@@ -18,8 +18,6 @@ services:
           - ca.vaultx.example.com
           - peer0.vaultx.example.com
           - peer1.vaultx.example.com
-          - peer0.client.example.com
-          - peer1.client.example.com
     environment:
       SPRING_PROFILES_ACTIVE: test
       OTEL_SDK_DISABLED: "true"
