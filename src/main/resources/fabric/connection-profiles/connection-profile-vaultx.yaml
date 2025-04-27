@@ -9,8 +9,6 @@ organizations:
     peers:
       - peer0.vaultx.example.com
       - peer1.vaultx.example.com
-      - peer0.client.example.com
-      - peer1.client.example.com
     certificateAuthorities:
       - ca.vaultx.example.com
 peers:

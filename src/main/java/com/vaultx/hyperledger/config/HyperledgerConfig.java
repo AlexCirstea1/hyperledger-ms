@@ -111,7 +111,7 @@ public class HyperledgerConfig {
         return Gateway.createBuilder()
                 .identity(wallet, userName)
                 .networkConfig(tmpYaml)
-                .discovery(true)
+                .discovery(false)
                 .connect();
     }
 
