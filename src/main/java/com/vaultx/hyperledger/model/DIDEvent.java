@@ -17,14 +17,10 @@ public class DIDEvent {
 
     /** chain‑code key */
     private UUID eventId;
-
     private UUID userId;
     private String publicKey;
-
-    @JsonProperty("type")
-    private EventType eventType;
+    private EventType type;
     private Instant timestamp;
-
     private String payload;
     private long kafkaOffset;
     private String payloadHash;
