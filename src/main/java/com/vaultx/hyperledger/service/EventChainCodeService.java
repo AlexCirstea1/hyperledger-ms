@@ -44,10 +44,10 @@ public class EventChainCodeService {
                     "createEvent",
                     ev.getEventId().toString(),
                     ev.getUserId().toString(),
-                    ev.getEventType().name(),
-                    ev.getPayloadHash(),
-                    ev.getPayload(),
                     ev.getPublicKey(),
+                    ev.getEventType().name(),
+                    ev.getPayload(),
+                    ev.getPayloadHash(),
                     String.valueOf(ev.getKafkaOffset())
             );
         } catch (ContractException | TimeoutException | InterruptedException e) {
