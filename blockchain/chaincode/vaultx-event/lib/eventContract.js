@@ -6,41 +6,52 @@ const EventModel = require('./eventModel');
 class VaultxEventContract extends Contract {
 
     /** createEvent(txID, userId, type, payloadHash, kafkaOffset) */
-    async createEvent(ctx, eventId, userId, type, payloadHash, kafkaOffset) {
-        // Check if the event already exists
+    async createEvent(
+        ctx,
+        eventId,
+        userId,
+        publicKey,
+        type,
+        payload,
+        payloadHash,
+        kafkaOffset
+    ) {
+        // 1) ensure it doesn’t already exist
         const exists = await ctx.stub.getState(eventId);
         if (exists && exists.length > 0) {
             throw new Error(`Event ${eventId} already exists`);
         }
 
-        // Use the deterministic transaction timestamp provided by Fabric
-        const txTimestampProto = ctx.stub.getTxTimestamp();
-        const seconds = txTimestampProto.seconds.low !== undefined ? txTimestampProto.seconds.low : txTimestampProto.seconds;
-        const nanos = txTimestampProto.nanos;
-        const eventTimestamp = new Date(seconds * 1000 + nanos / 1000000).toISOString();
+        // 2) timestamp
+        const ts = ctx.stub.getTxTimestamp();
+        const secs  = ts.seconds.low  !== undefined ? ts.seconds.low  : ts.seconds;
+        const millis = secs * 1000 + ts.nanos / 1e6;
+        const timestamp = new Date(millis).toISOString();
 
-        // Build the event model
+        // 3) build the full event object
         const ev = new EventModel({
             eventId,
             userId,
+            publicKey,
             type,
+            payload,
             payloadHash,
             kafkaOffset: parseInt(kafkaOffset, 10),
-            timestamp: eventTimestamp
+            timestamp
         });
 
-        // Persist the event
+        // 4) persist
         await ctx.stub.putState(eventId, Buffer.from(JSON.stringify(ev)));
         return ev;
     }
 
-    /** queryEvent(eventId) -> EventModel */
+    /** queryEvent(eventId) -> full EventModel JSON */
     async queryEvent(ctx, eventId) {
-        const bytes = await ctx.stub.getState(eventId);
-        if (!bytes || bytes.length === 0) {
+        const b = await ctx.stub.getState(eventId);
+        if (!b || b.length === 0) {
             throw new Error(`Event ${eventId} not found`);
         }
-        return JSON.parse(bytes.toString());
+        return JSON.parse(b.toString());
     }
 
     /** rich‑query: get all events for a user */
@@ -49,11 +60,10 @@ class VaultxEventContract extends Contract {
             JSON.stringify({ selector: { docType: 'vaultxEvent', userId } })
         );
         const results = [];
-        let result = await iterator.next();
-        while (!result.done) {
-            const record = result.value;
-            results.push(JSON.parse(record.value.toString('utf8')));
-            result = await iterator.next();
+        let res = await iterator.next();
+        while (!res.done) {
+            results.push(JSON.parse(res.value.value.toString('utf8')));
+            res = await iterator.next();
         }
         await iterator.close();
         return results;
@@ -63,16 +73,16 @@ class VaultxEventContract extends Contract {
     async queryHistory(ctx, eventId) {
         const iterator = await ctx.stub.getHistoryForKey(eventId);
         const history = [];
-        let result = await iterator.next();
-        while (!result.done) {
-            const record = result.value;
+        let res = await iterator.next();
+        while (!res.done) {
+            const r = res.value;
             history.push({
-                txId: record.txId,
-                timestamp: record.timestamp,
-                isDelete: record.isDelete,
-                value: record.value.toString('utf8')
+                txId:      r.txId,
+                timestamp: r.timestamp,
+                isDelete:  r.isDelete,
+                value:     r.value.toString('utf8')
             });
-            result = await iterator.next();
+            res = await iterator.next();
         }
         await iterator.close();
         return history;

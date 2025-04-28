@@ -1,18 +1,28 @@
 'use strict';
 
 /**
- * Plain JS object that represents an event in world‑state.
- * You can extend it anytime.
+ * Plain JS object that represents an event in world-state.
  */
 class EventModel {
-    constructor({ eventId, userId, type, payloadHash, kafkaOffset, timestamp }) {
+    constructor({
+                    eventId,
+                    userId,
+                    publicKey,
+                    type,
+                    payload,
+                    payloadHash,
+                    kafkaOffset,
+                    timestamp
+                }) {
         this.eventId      = eventId;
         this.userId       = userId;
+        this.publicKey    = publicKey;
         this.type         = type;
+        this.payload      = payload;
         this.payloadHash  = payloadHash;
         this.kafkaOffset  = kafkaOffset;
-        this.timestamp    = timestamp;     // ISO‑8601 string
-        this.docType      = 'vaultxEvent'; // lets us couchDB‑query by type
+        this.timestamp    = timestamp;
+        this.docType      = 'vaultxEvent';
     }
 }
 

@@ -47,7 +47,7 @@ public class EventChainCodeService {
                     ev.getEventType().name(),
                     ev.getPayloadHash(),
                     ev.getPayload(),
-                    ev.getPublicDid(),
+                    ev.getPublicKey(),
                     String.valueOf(ev.getKafkaOffset())
             );
         } catch (ContractException | TimeoutException | InterruptedException e) {

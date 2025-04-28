@@ -17,7 +17,7 @@ public class DIDEvent {
     private UUID eventId;
 
     private UUID userId;
-    private String publicDid;
+    private String publicKey;
 
     private EventType eventType;
     private Instant timestamp;
