@@ -8,7 +8,7 @@ class EventModel {
                     eventId,
                     userId,
                     publicKey,
-                    type,
+                    eventType,
                     payload,
                     payloadHash,
                     kafkaOffset,
@@ -17,7 +17,7 @@ class EventModel {
         this.eventId      = eventId;
         this.userId       = userId;
         this.publicKey    = publicKey;
-        this.type         = type;
+        this.eventType    = eventType;
         this.payload      = payload;
         this.payloadHash  = payloadHash;
         this.kafkaOffset  = kafkaOffset;

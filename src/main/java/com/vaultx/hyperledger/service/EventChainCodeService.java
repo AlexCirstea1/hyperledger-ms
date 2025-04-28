@@ -45,7 +45,7 @@ public class EventChainCodeService {
                     ev.getEventId().toString(),
                     ev.getUserId().toString(),
                     ev.getPublicKey(),
-                    ev.getType().name(),
+                    ev.getEventType().name(),
                     ev.getPayload(),
                     ev.getPayloadHash(),
                     String.valueOf(ev.getKafkaOffset())

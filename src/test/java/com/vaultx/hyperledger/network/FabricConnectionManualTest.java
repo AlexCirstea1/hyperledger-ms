@@ -29,7 +29,7 @@ public class FabricConnectionManualTest {
         DIDEvent event = new DIDEvent();
         event.setEventId(UUID.randomUUID());
         event.setUserId(UUID.randomUUID());
-        event.setType(EventType.USER_REGISTERED);
+        event.setEventType(EventType.USER_REGISTERED);
         event.setPayload("{\"test\":\"transaction\"}");
         event.setKafkaOffset(999L);
 
@@ -47,7 +47,7 @@ public class FabricConnectionManualTest {
         UUID userId = UUID.randomUUID();
         event.setEventId(UUID.randomUUID());
         event.setUserId(userId);
-        event.setType(EventType.USER_REGISTERED);
+        event.setEventType(EventType.USER_REGISTERED);
         event.setPayload("{\"test\":\"query\"}");
         event.setKafkaOffset(1000L);
 

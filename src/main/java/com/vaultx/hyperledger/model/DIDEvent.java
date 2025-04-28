@@ -3,7 +3,6 @@ package com.vaultx.hyperledger.model;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class DIDEvent {
     private UUID eventId;
     private UUID userId;
     private String publicKey;
-    private EventType type;
+    private EventType eventType;
     private Instant timestamp;
     private String payload;
     private long kafkaOffset;

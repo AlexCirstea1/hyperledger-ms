@@ -5,13 +5,13 @@ const EventModel = require('./eventModel');
 
 class VaultxEventContract extends Contract {
 
-    /** createEvent(txID, userId, type, payloadHash, kafkaOffset) */
+    /** createEvent(txID, userId, eventType, payloadHash, kafkaOffset) */
     async createEvent(
         ctx,
         eventId,
         userId,
         publicKey,
-        type,
+        eventType,
         payload,
         payloadHash,
         kafkaOffset
@@ -33,7 +33,7 @@ class VaultxEventContract extends Contract {
             eventId,
             userId,
             publicKey,
-            type,
+            eventType,
             payload,
             payloadHash,
             kafkaOffset: parseInt(kafkaOffset, 10),

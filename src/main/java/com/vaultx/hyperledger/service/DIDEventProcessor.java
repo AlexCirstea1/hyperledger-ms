@@ -47,12 +47,12 @@ public class DIDEventProcessor implements Processor {
 
     private void processEventByType(DIDEvent event) {
 
-        switch (event.getType()) {
+        switch (event.getEventType()) {
             case USER_REGISTERED -> handleUserRegistration(event);
             case USER_KEY_ROTATED -> handleKeyRotation(event);
             case USER_ROLE_CHANGED -> handleRoleChange(event);
             case CHAT_CREATED -> handleChatEvent(event);
-            default -> log.warn("Unhandled event type: {}", event.getType());
+            default -> log.warn("Unhandled event type: {}", event.getEventType());
         }
     }
 

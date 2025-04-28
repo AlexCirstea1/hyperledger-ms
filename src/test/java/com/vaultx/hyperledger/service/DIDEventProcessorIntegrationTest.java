@@ -53,7 +53,7 @@ public class DIDEventProcessorIntegrationTest {
         // Verify the exchanged body has been updated with a DIDEvent
         DIDEvent resultEvent = exchange.getIn().getBody(DIDEvent.class);
         assert resultEvent != null;
-        assert resultEvent.getType() == EventType.USER_REGISTERED;
+        assert resultEvent.getEventType() == EventType.USER_REGISTERED;
         assert resultEvent.getKafkaOffset() == 42L;
     }
 }

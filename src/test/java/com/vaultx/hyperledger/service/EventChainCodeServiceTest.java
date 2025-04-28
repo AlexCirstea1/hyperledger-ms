@@ -43,7 +43,7 @@ public class EventChainCodeServiceTest {
         UUID userId = UUID.randomUUID();
         event.setEventId(eventId);
         event.setUserId(userId);
-        event.setType(EventType.USER_REGISTERED);
+        event.setEventType(EventType.USER_REGISTERED);
         event.setPayload("{\"key\":\"value\"}");
         event.setKafkaOffset(123L);
 
@@ -67,7 +67,7 @@ public class EventChainCodeServiceTest {
         DIDEvent event = new DIDEvent();
         event.setEventId(UUID.randomUUID());
         event.setUserId(UUID.randomUUID());
-        event.setType(EventType.USER_REGISTERED);
+        event.setEventType(EventType.USER_REGISTERED);
         event.setPayload("test-payload");
 
         doThrow(new RuntimeException("Network error"))
@@ -95,7 +95,7 @@ public class EventChainCodeServiceTest {
         assertNotNull(result);
         assertEquals(testEventId, result.getEventId());
         assertEquals(testUserId, result.getUserId());
-        assertEquals(EventType.USER_REGISTERED, result.getType());
+        assertEquals(EventType.USER_REGISTERED, result.getEventType());
     }
 
     @Test
