@@ -46,7 +46,10 @@ public class EventChainCodeService {
                     ev.getUserId().toString(),
                     ev.getEventType().name(),
                     ev.getPayloadHash(),
-                    String.valueOf(ev.getKafkaOffset()));
+                    ev.getPayload(),
+                    ev.getPublicDid(),
+                    String.valueOf(ev.getKafkaOffset())
+            );
         } catch (ContractException | TimeoutException | InterruptedException e) {
             throw new IllegalStateException("Failed to write event to Fabric", e);
         }
