@@ -3,7 +3,7 @@ version: "3.8"
 networks:
   fablo_basic:                # << we reuse the existing Fablo network
     external: true
-    name: fablo_network_202504272016_basic   # <- keep this exact string
+    name: fablo_network_202507051259_basic   # <- keep this exact string
 
 services:
   hyperledger-ms:
