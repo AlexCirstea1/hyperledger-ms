@@ -5,4 +5,5 @@ public enum EventType {
     USER_KEY_ROTATED,
     USER_ROLE_CHANGED,
     CHAT_CREATED,
+    FILE_UPLOAD,
 }
